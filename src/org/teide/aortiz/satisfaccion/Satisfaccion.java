@@ -34,6 +34,15 @@ import org.teide.aortiz.satisfaccion.bean.CourseBean;
 public class Satisfaccion {
         
     /**
+     * **************************CUIDADO **************************
+     * Con esta nueva versión de Moodle ahora el caracter de corte es la coma 
+     * El problema es que el usuario podría dejar una coma dentro de un comentario y entonces se obtendría algún resultado incorrecto
+     * Habría que buscar la posibilidad de poner en Moodle como caracter de corte el punto y coma ;
+     * ************************************************************
+     */
+    public static final String CARACTER_CORTE = ",";
+    
+    /**
      * @param args the command line arguments
      */
     /*
@@ -72,10 +81,10 @@ public class Satisfaccion {
         //La primera línea no hace falta que la leamos porque lleva las cabeceras
         br.readLine();
         while ((line=br.readLine())!=null) {
-            String[] results = line.split("\t");
+            String[] results = line.split(CARACTER_CORTE);
             //Para el primer alumno obtendremos la fecha y el nombre del grupo
             if (obtainDateAndName) {
-                date = results[FieldsValues.DATE_FIELD].split(" ")[0];
+                date = results[FieldsValues.DATE_FIELD].split(CARACTER_CORTE)[0];
                 name = new File(inputCSVfilename).getName().split("\\.")[0];
                 obtainDateAndName = false;
             }
@@ -164,6 +173,8 @@ public class Satisfaccion {
      * @param sex el sexo del usuario
      */
     private void transformSex (int[] userValues, String sex) {
+        //Hay que eliminar las comillas dobles que vienen ahora con la nueva versión de Moodle 3.6
+        sex = sex.replace("\"", "");
         if (sex.equals(FieldsValues.MAN_VALUE)) userValues[Integer.parseInt(FieldsValues.MAN_VALUE)-1]++;
         else userValues[Integer.parseInt(FieldsValues.WOMAN_VALUE)-1]++;
     }
@@ -175,6 +186,10 @@ public class Satisfaccion {
      * @param resp listado de respuestas del usuario
      */
     private void transformKnow (int[] userValueKnow, int[] userValueStudent, String[] resp) {
+        //Hay que eliminar las comillas dobles que vienen ahora con la nueva versión de Moodle 3.6
+        for (int i = 0; i < resp.length; i++) {
+            if (resp[i]!=null) resp[i] = resp[i].replace("\"", "");
+        }
         //Primero tratamos como conoció el centro
         userValueKnow[Integer.parseInt(resp[0].split(" ")[0])-1]++;
         //Después tratamos como se valora como estudiante
@@ -188,6 +203,10 @@ public class Satisfaccion {
      * @param resp respuestas del usuario
      */
     private void transformOpinion (ArrayList<DataOrderBean> userValuesBetter, ArrayList<DataOrderBean> userValuesPlease, String[] resp) {
+         //Hay que eliminar las comillas dobles que vienen ahora con la nueva versión de Moodle 3.6
+        for (int i = 0; i < resp.length; i++) {
+            if (resp[i]!=null) resp[i] = resp[i].replace("\"", "");
+        }
         for (int i = 0; i < resp.length; i++) {
             //Aspectos a mejorar
             if (i<3) {
